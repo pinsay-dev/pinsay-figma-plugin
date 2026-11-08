@@ -1,35 +1,51 @@
 # PinSay Figma Plugin
 
-The PinSay Figma Community plugin connects your Figma designs directly with PinSay feedback:
+The [PinSay](https://pinsay.dev) plugin for Figma: send a frame, component or group from your design to a PinSay
+comment, so the person (or AI coding agent) who applies the feedback has the design and its CSS specs at hand.
 
-- **Scenario A (Attach to comment):** Select a frame, component, or section in Figma and attach it with thumbnail and CSS specs to an existing PinSay comment thread.
-- **Scenario B (Pin on live site):** Pick a target page in your PinSay project and send the selected frame directly to the live site to open the widget and pin the comment.
+Install: [PinSay on Figma Community](https://www.figma.com/community/plugin/1700222297788975458) · docs at
+[pinsay.dev/docs](https://pinsay.dev/docs/).
 
 This repository is a **read-only mirror** of the plugin's folder in PinSay's main (private) repository,
 updated at each plugin release. Licence: [MIT](LICENSE).
 
-## Getting Started
+## What it does
 
-```bash
-cd pinsay-figma-plugin
-npm install
-npm run build
-npm test
-```
+- **Attach to comment:** pick an open comment in your PinSay project (search by text or `#number`) and reply to it
+  with the selected frame: a thumbnail, its CSS specs and a link back to Figma, plus an optional note.
+- **Pin on live site:** pick your project's site; the plugin opens it in your browser, and you click the element on
+  the page to pin the frame there as a new comment.
 
-## Local Development
+## How to use it
 
-1. Open Figma desktop.
-2. Navigate to **Plugins** → **Development** → **Import plugin from manifest...**.
-3. Select `pinsay-figma-plugin/manifest.json`.
-4. Run `npm run watch` (or `npm run build`) to compile changes to `dist/`.
+1. In Figma, run **PinSay** from the Plugins menu and choose **Sign in with PinSay**. Approve the code in the browser
+   window that opens.
+2. Select one frame, component or group on the canvas.
+3. Pick the project, then **Attach to comment** or **Pin on live site**.
 
-To test against a local API instead of production:
-```bash
-PINSAY_SERVER=http://localhost:5174 npm run build
-```
-Note that `http://localhost:5174` is configured in `manifest.json` under `devAllowedDomains`.
+The plugin needs the Figma integration enabled for your PinSay workspace.
 
 ## Figma file links
 
-> **Note:** Community plugins cannot read `figma.fileKey` directly. The plugin will prompt the designer to paste the file's link once per file; the file key is then remembered in client storage.
+Community plugins cannot read `figma.fileKey` directly. The plugin asks you to paste the file's link once per file
+(In Figma: **Share** → **Copy link**); the link is then remembered for that file.
+
+## Build from source
+
+```bash
+npm install
+npm run build    # → dist/
+npm test
+```
+
+To try your build: in Figma desktop, **Plugins** → **Development** → **Import plugin from manifest…**, and select
+this repository's `manifest.json`. `npm run watch` rebuilds on change.
+
+## Contributing
+
+This repository is a mirror: changes are made in PinSay's main repository and pushed here at each release, so
+pull requests can't be merged directly. Found a bug or have an idea? Email support@pinsay.dev.
+
+## License
+
+[MIT](LICENSE) © PinSay
