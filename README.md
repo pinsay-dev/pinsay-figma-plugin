@@ -3,8 +3,12 @@
 The [PinSay](https://pinsay.dev) plugin for Figma: send a frame, component or group from your design to a PinSay
 comment, so the person (or AI coding agent) who applies the feedback has the design and its CSS specs at hand.
 
+Install: pending Figma Community review; the install link goes here once Figma approves the plugin. Docs at
+[pinsay.dev/docs](https://pinsay.dev/docs/).
+<!-- After approval, replace the line above with:
 Install: [PinSay on Figma Community](https://www.figma.com/community/plugin/1700222297788975458) · docs at
 [pinsay.dev/docs](https://pinsay.dev/docs/).
+(docs/RELEASING.md § Figma plugin, step 6) -->
 
 This repository is a **read-only mirror** of the plugin's folder in PinSay's main (private) repository,
 updated at each plugin release. Licence: [MIT](LICENSE).
