@@ -30,12 +30,6 @@ PINSAY_SERVER=http://localhost:5174 npm run build
 ```
 Note that `http://localhost:5174` is configured in `manifest.json` under `devAllowedDomains`.
 
-## Publishing (CEO)
-
-1. Create the plugin in Figma desktop: **Plugins** → **Development** → **New plugin** under the PinSay organization/account.
-2. Figma assigns a permanent plugin `id`. It is set in `manifest.json` as `"id": "1700222297788975458"`.
-3. Build the production bundle: `npm run build`.
-4. From Figma desktop, select the plugin and choose **Publish**.
-5. Set the public name to **PinSay** and website link to `https://pinsay.dev`.
+## Figma file links
 
 > **Note:** Community plugins cannot read `figma.fileKey` directly. The plugin will prompt the designer to paste the file's link once per file; the file key is then remembered in client storage.
