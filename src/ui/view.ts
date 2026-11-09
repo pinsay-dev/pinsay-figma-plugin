@@ -9,6 +9,25 @@ export function esc(s: unknown): string {
 export type PanelMessage = { kind: 'err'; text: string } | null;
 export type Result = { kind: 'attach' | 'pin'; title: string; detail: string | null; openUrl: string | null };
 
+export type MissingStep = 'file' | 'frame' | 'project' | 'comment' | 'site';
+
+/** The first step still missing before the primary button can be used (null = nothing missing). */
+export function missingStep(s: {
+  tab: 'attach' | 'pin';
+  hasFileKey: boolean;
+  hasValidSel: boolean;
+  hasProject: boolean;
+  hasComment: boolean;
+  hasEnv: boolean;
+}): MissingStep | null {
+  if (!s.hasFileKey) return 'file';
+  if (!s.hasValidSel) return 'frame';
+  if (!s.hasProject) return 'project';
+  if (s.tab === 'attach' && !s.hasComment) return 'comment';
+  if (s.tab === 'pin' && !s.hasEnv) return 'site';
+  return null;
+}
+
 const ICON_FRAME =
   '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><path d="M5 1.5v13M11 1.5v13M1.5 5h13M1.5 11h13"/></svg>';
 const ICON_SEARCH =
@@ -161,10 +180,21 @@ function noteField(note: string): string {
   return `<div class="field"><label for="note">${esc(t('note.label'))}</label><textarea id="note" maxlength="2000" placeholder="${esc(t('note.placeholder'))}">${esc(note)}</textarea></div>`;
 }
 
-function submit(id: 'attach' | 'pin', label: string, canSubmit: boolean, busy: boolean, message: PanelMessage): string {
+function submit(
+  id: 'attach' | 'pin',
+  label: string,
+  canSubmit: boolean,
+  busy: boolean,
+  message: PanelMessage,
+  hint: string | null,
+): string {
   const msg = message ? `<p class="msg err" role="alert">${esc(message.text)}</p>` : '';
   const inner = busy ? `${SPINNER}${esc(t('busy'))}` : esc(label);
-  return `${msg}<button id="${id}" class="primary"${canSubmit && !busy ? '' : ' disabled'}${busy ? ' aria-busy="true"' : ''}>${inner}</button>`;
+  const showHint = !canSubmit && !busy && !!hint;
+  const hintId = `${id}-hint`;
+  const describedBy = showHint ? ` aria-describedby="${hintId}"` : '';
+  const hintLine = showHint ? `<p id="${hintId}" class="muted submit-hint">${esc(hint)}</p>` : '';
+  return `${msg}<button id="${id}" class="primary"${canSubmit && !busy ? '' : ' disabled'}${busy ? ' aria-busy="true"' : ''}${describedBy}>${inner}</button>${hintLine}`;
 }
 
 export function attachPanel(s: {
@@ -175,6 +205,7 @@ export function attachPanel(s: {
   canSubmit: boolean;
   busy: boolean;
   message: PanelMessage;
+  hint?: string | null;
 }): string {
   const searchInput = `<div class="search">${ICON_SEARCH}<input id="search" type="search" placeholder="${esc(t('search.placeholder'))}" value="${esc(s.query)}" aria-label="${esc(t('search.placeholder'))}"></div>`;
   let listPart = '';
@@ -189,7 +220,7 @@ export function attachPanel(s: {
       .join('');
     listPart = `<ul class="list" role="listbox">${items}</ul>`;
   }
-  return `<div class="panel attach-panel">${searchInput}${listPart}${noteField(s.note)}${submit('attach', t('attach.button'), s.canSubmit, s.busy, s.message)}</div>`;
+  return `<div class="panel attach-panel">${searchInput}${listPart}${noteField(s.note)}${submit('attach', t('attach.button'), s.canSubmit, s.busy, s.message, s.hint ?? null)}</div>`;
 }
 
 export function pinPanel(s: {
@@ -199,6 +230,7 @@ export function pinPanel(s: {
   canSubmit: boolean;
   busy: boolean;
   message: PanelMessage;
+  hint?: string | null;
   productName?: string;
 }): string {
   const envPart =
@@ -210,7 +242,7 @@ export function pinPanel(s: {
               `<option value="${esc(e.url)}"${e.url === s.envUrl ? ' selected' : ''}>${esc(e.name)} — ${esc(e.url)}</option>`,
           )
           .join('')}</select></div>`;
-  return `<div class="panel pin-panel">${envPart}${noteField(s.note)}${submit('pin', t('pin.button'), s.canSubmit, s.busy, s.message)}</div>`;
+  return `<div class="panel pin-panel">${envPart}${noteField(s.note)}${submit('pin', t('pin.button'), s.canSubmit, s.busy, s.message, s.hint ?? null)}</div>`;
 }
 
 /** Shown in place of the tab panel after a successful send. */

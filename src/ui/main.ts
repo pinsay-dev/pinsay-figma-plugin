@@ -33,6 +33,7 @@ import {
   resultPanel,
   type PanelMessage,
   type Result,
+  missingStep,
 } from './view';
 
 type Screen = 'signedOut' | 'deviceCode' | 'loading' | 'main';
@@ -307,6 +308,15 @@ function render(): void {
   const hasProject = !!state.selectedProjectKey;
   const canSubmitAttach = isSignedIn && hasValidSel && hasFileKey && hasProject && state.selectedCommentId !== null;
   const canSubmitPin = isSignedIn && hasValidSel && hasFileKey && hasProject && !!state.selectedEnvUrl;
+  const step = missingStep({
+    tab: state.activeTab,
+    hasFileKey,
+    hasValidSel,
+    hasProject,
+    hasComment: state.selectedCommentId !== null,
+    hasEnv: !!state.selectedEnvUrl,
+  });
+  const submitHint = step ? t(`hint.${step}`) : null;
 
   let html = '';
   if (state.screen === 'signedOut') {
@@ -337,6 +347,7 @@ function render(): void {
         canSubmit: canSubmitAttach,
         busy: state.busy,
         message: state.panelMessage,
+        hint: submitHint,
       });
     } else {
       panel = pinPanel({
@@ -346,6 +357,7 @@ function render(): void {
         canSubmit: canSubmitPin,
         busy: state.busy,
         message: state.panelMessage,
+        hint: submitHint,
         productName: state.branding.productName,
       });
     }

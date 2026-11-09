@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { attachPanel, header, selectionCard, pinPanel, resultPanel, signedOut, wsMenu, blockedPanel } from '../src/ui/view';
+import { attachPanel, header, selectionCard, pinPanel, resultPanel, signedOut, wsMenu, blockedPanel, missingStep } from '../src/ui/view';
 import { setLang, t } from '../src/ui/i18n';
 import type { CommentItem } from '../src/ui/api';
 
@@ -148,5 +148,82 @@ describe('view', () => {
   it('blockedPanel is translated', () => {
     setLang('ar');
     expect(blockedPanel()).toContain('تكامل Figma غير مفعل لمساحة العمل هذه.');
+  });
+
+  it('missingStep returns the first missing step', () => {
+    const base = { hasFileKey: false, hasValidSel: false, hasProject: false, hasComment: false, hasEnv: false };
+    expect(missingStep({ tab: 'attach', ...base })).toBe('file');
+    expect(missingStep({ tab: 'attach', ...base, hasFileKey: true })).toBe('frame');
+    expect(missingStep({ tab: 'attach', ...base, hasFileKey: true, hasValidSel: true })).toBe('project');
+    const ready = { ...base, hasFileKey: true, hasValidSel: true, hasProject: true };
+    expect(missingStep({ tab: 'attach', ...ready })).toBe('comment');
+    expect(missingStep({ tab: 'pin', ...ready })).toBe('site');
+    const all = { ...ready, hasComment: true, hasEnv: true };
+    expect(missingStep({ tab: 'attach', ...all })).toBeNull();
+    expect(missingStep({ tab: 'pin', ...all })).toBeNull();
+  });
+
+  it('attachPanel shows an escaped hint linked to the disabled button', () => {
+    const html = attachPanel({
+      query: '',
+      results: [],
+      selectedId: null,
+      note: '',
+      canSubmit: false,
+      busy: false,
+      message: null,
+      hint: 'Save <b>x</b>',
+    });
+    expect(html).toContain('aria-describedby="attach-hint"');
+    expect(html).toContain('<p id="attach-hint" class="muted submit-hint">Save &lt;b&gt;x&lt;/b&gt;</p>');
+    expect(html).not.toContain('<b>');
+  });
+
+  it('attachPanel shows no hint when it can submit', () => {
+    const html = attachPanel({
+      query: '',
+      results: [],
+      selectedId: null,
+      note: '',
+      canSubmit: true,
+      busy: false,
+      message: null,
+      hint: 'x',
+    });
+    expect(html).not.toContain('attach-hint');
+    expect(html).not.toContain('aria-describedby');
+  });
+
+  it('pinPanel shows no hint while busy', () => {
+    const html = pinPanel({
+      envs: [],
+      envUrl: null,
+      note: '',
+      canSubmit: false,
+      busy: true,
+      message: null,
+      hint: 'x',
+    });
+    expect(html).not.toContain('pin-hint');
+  });
+
+  it('pinPanel shows the hint when disabled and idle', () => {
+    const html = pinPanel({
+      envs: [{ name: 'Prod', url: 'https://a.test' }] as never,
+      envUrl: null,
+      note: '',
+      canSubmit: false,
+      busy: false,
+      message: null,
+      hint: 'x',
+    });
+    expect(html).toContain('aria-describedby="pin-hint"');
+    expect(html).toContain('id="pin-hint"');
+  });
+
+  it('hint strings are translated', () => {
+    setLang('ar');
+    expect(t('hint.file')).toContain('Figma');
+    setLang('en');
   });
 });

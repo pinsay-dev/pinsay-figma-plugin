@@ -544,6 +544,12 @@ textarea:focus-visible {
   color: var(--danger);
 }
 
+.submit-hint {
+  margin-top: -2px;
+  font-size: 11px;
+  text-align: center;
+}
+
 .result {
   align-items: center;
   gap: 6px;
